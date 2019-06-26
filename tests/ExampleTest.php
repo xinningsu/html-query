@@ -115,21 +115,21 @@ class ExampleTest extends TestCase
             $hq('.container')->outerHtml()
         );
 
-        $images->each(function (HtmlQuery $node, $index) {
-            $node->attr(['alt' => 'image ' . ($index + 1)]);
-        });
-
         $images->each(function (DOMElement $node) {
             $node->setAttribute('title', 'html query');
+        });
+
+        $images->each(function (HtmlQuery $node, $index) {
+            $node->attr(['alt' => 'image ' . ($index + 1)]);
         });
 
         $this->assertHtmlEquals(
             '
             <div class="container">
-                <img src="1.png" alt="image 1" title="html query">
-                <img src="2.png" alt="image 2" title="html query">
+                <img src="1.png" title="html query" alt="image 1">
+                <img src="2.png" title="html query" alt="image 2">
                 <div class="img">
-                    <img src="3.png" alt="image 3" title="html query">
+                    <img src="3.png" title="html query" alt="image 3">
                 </div>
             </div>',
             $hq('.container')->outerHtml()

@@ -126,10 +126,10 @@ $images->each(function (HtmlQuery $node, $index) {
 echo $hq('.container')->outerHtml();
 /*
 <div class="container">
-    <img src="1.png" alt="image 1" title="html query">
-    <img src="2.png" alt="image 2" title="html query">
+    <img src="1.png" title="html query" alt="image 1">
+    <img src="2.png" title="html query" alt="image 2">
     <div class="img">
-        <img src="3.png" alt="image 3" title="html query">
+        <img src="3.png" title="html query" alt="image 3">
     </div>
 </div>
 */
