@@ -1,0 +1,13 @@
+language: php
+dist: trusty
+sudo: false
+
+php:
+  - "7.1"
+
+install:
+  - composer install
+
+script:
+  - vendor/bin/phpcs -n --standard=PSR12 --ignore=./vendor/ --extensions=php ./
+  - vendor/bin/phpunit
