@@ -93,7 +93,7 @@ $hq = HQ::html($html);
 $images = $hq('.container img');
 
 $images->removeAttr('onclick');
-$hq('.container')->outerHtml();
+echo $hq('.container')->outerHtml();
 /*
 <div class="container">
     <img src="1.png" width="100">
@@ -152,7 +152,7 @@ $html = '
 ';
 $hq = HQ::html($html);
 
-$hq('.container img')->not('.img img')->wrap('<divclass="img"></div>');
+$hq('.container img')->not('.img img')->wrap('<div class="img"></div>');
 echo $hq('.container')->outerHtml();
 // The indentation maybe not the same, but the html structure should be the same. 
 /*
