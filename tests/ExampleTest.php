@@ -5,7 +5,7 @@ use Sulao\HtmlQuery\{HQ, HtmlQuery};
 
 class ExampleTest extends TestCase
 {
-    public function testExample1()
+    public function testGetContents()
     {
         $html = '
             <html>
@@ -38,7 +38,37 @@ class ExampleTest extends TestCase
         );
     }
 
-    public function testExample2()
+    public function testSetContents()
+    {
+        $html = '
+            <html>
+            <head>
+                <title>Html Query</title>
+            </head>
+            <body>
+                <h1 class="title">this is title</h1>
+                <div class="content">this is <b>content</b>...</div>
+            </body>
+            </html>
+        ';
+        $hq = HQ::html($html);
+
+        $this->assertEquals(
+            'this is new title',
+            $hq('.title')->html('this is new title')->html()
+        );
+        $this->assertEquals(
+            'this is <b>new content</b>...',
+            $hq('.content')->html('this is <b>new content</b>...')->html()
+        );
+
+        $this->assertEquals(
+            'this is new content...',
+            $hq('.content')->text('this is new content...')->html()
+        );
+    }
+
+    public function testGetAttributes()
     {
         $html = '
             <div class="container">
@@ -75,7 +105,7 @@ class ExampleTest extends TestCase
         );
     }
 
-    public function testExample3()
+    public function testChangeAttributes()
     {
         $html = '
             <div class="container">
@@ -136,7 +166,7 @@ class ExampleTest extends TestCase
         );
     }
 
-    public function testExample4()
+    public function testChangeStructure()
     {
         $html = '
             <div class="container">

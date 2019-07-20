@@ -35,6 +35,32 @@ echo $hq('.content')->text();
 //this is content...
 ```
 
+### Set contents
+```php
+<?php
+$html = '
+    <html>
+    <head>
+        <title>Html Query</title>
+    </head>
+    <body>
+        <h1 class="title">this is title</h1>
+        <div class="content">this is <b>content</b>...</div>
+    </body>
+    </html>
+';
+$hq = HQ::html($html);
+
+echo $hq('.title')->html('this is new title')->html();
+//this is new title
+
+echo $hq('.content')->html('this is <b>new content</b>...');
+//this is <b>new content</b>...
+
+echo $hq('.content')->text('this is new content...')->html();
+//this is new content...
+```
+
 ### Get attributes
 ```php
 <?php
