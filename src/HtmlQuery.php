@@ -434,7 +434,7 @@ class HtmlQuery extends Selection
                         return $selected->getAttr('value');
                     }
 
-                    $fistChild = $ht->children('option:first-child');
+                    $fistChild = $ht->xpathFind('child::*[1]');
                     if ($fistChild->count()) {
                         return $fistChild->getAttr('value');
                     }
@@ -456,7 +456,7 @@ class HtmlQuery extends Selection
     {
         return $this->each(function (DOMNode $node) use ($value) {
             if (!($node instanceof DOMElement)) {
-                return null;
+                return;
             }
 
             switch ($node->tagName) {
@@ -694,10 +694,10 @@ class HtmlQuery extends Selection
 
             $css = Helper::splitCss($style);
             if (!array_key_exists($name, $css)) {
-                $keys = array_keys($css);
+                $allKeys = array_keys($css);
                 $arr = array_combine(
-                    $keys,
-                    array_change_key_case($keys, CASE_LOWER)
+                    $allKeys,
+                    array_map('strtolower', $allKeys)
                 );
 
                 $keys = array_keys($arr, strtolower($name));
@@ -733,10 +733,10 @@ class HtmlQuery extends Selection
                 unset($css[$name]);
                 $removed = true;
             } else {
-                $keys = array_keys($css);
+                $allKeys = array_keys($css);
                 $arr = array_combine(
-                    $keys,
-                    array_change_key_case($keys, CASE_LOWER)
+                    $allKeys,
+                    array_map('strtolower', $allKeys)
                 );
 
                 $keys = array_keys($arr, strtolower($name));

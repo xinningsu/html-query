@@ -80,6 +80,11 @@ class ResolverTest extends TestCase
         );
         $this->assertEquals([], $nodes);
 
+        $this->assertEquals(
+            [],
+            $this->protectMethod($hq, 'xpathQuery')('^&9*')
+        );
+
         $nodes = $this->protectMethod($hq, 'xpathQuery')(
             Helper::toXpath('#foo p')
         );

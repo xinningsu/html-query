@@ -65,6 +65,8 @@ class AttributeTest extends TestCase
             100,
             $hq->find('img')->eq(1)->setAttr('width', 100)->attr('width')
         );
+
+        $this->assertNull($hq->attr('none'));
     }
 
     public function testRemoveAttr()
@@ -152,6 +154,8 @@ class AttributeTest extends TestCase
 
         $this->assertTrue($hq->find('img')->eq(0)->hasAttr('alt'));
         $this->assertFalse($hq->find('img')->eq(1)->hasAttr('alt'));
+
+        $this->assertFalse($hq->hasAttr('alt'));
     }
 
     public function testProp()
@@ -229,10 +233,15 @@ class AttributeTest extends TestCase
             $hq->find('.p-0')->data('id', 2)->outerHtml()
         );
 
-        $hq->find('.p-0')->data(
-            'content',
-            ['id' => 1, 'tag' => 'dom']
-        )->removeData('id');
+        $this->assertEquals(
+            '<p class="p-0" data-id="2" data-name="test">test</p>',
+            $hq->find('.p-0')->data(['name' => 'test'])->outerHtml()
+        );
+
+        $hq->find('.p-0')
+            ->data('content', ['id' => 1, 'tag' => 'dom'])
+            ->removeData('id')
+            ->removeData('name');
 
         $this->assertEquals(
             '<p class="p-0" data-content=\'{"id":1,"tag":"dom"}\'>test</p>',
@@ -350,6 +359,11 @@ class AttributeTest extends TestCase
             '<p>test</p>',
             $hq->find('p')->removeClass()->outerHtml()
         );
+
+        $this->assertEquals(
+            '<p>test</p>',
+            $hq->find('p')->removeClass('test')->outerHtml()
+        );
     }
 
     public function testToggleClass()
@@ -394,6 +408,11 @@ class AttributeTest extends TestCase
         $this->assertEquals(
             '<p>test</p>',
             $hq->find('p')->toggleClass(null, false)->outerHtml()
+        );
+
+        $this->assertEquals(
+            '<p class="foo">test</p>',
+            $hq->find('p')->toggleClass('foo')->outerHtml()
         );
     }
 
@@ -476,6 +495,23 @@ class AttributeTest extends TestCase
                 <img src="3.png" style="">
             </div>',
             $hq->outerHtml()
+        );
+
+        $this->assertNull($hq->find('.content')->css('none'));
+
+        $hq->find('img')->eq(0)->css('WIDTH', '100px');
+        $this->assertEquals('100px', $hq->find('img')->eq(0)->css('width'));
+
+        $hq->find('img')->eq(0)->css('width', '99px');
+        $this->assertEquals(
+            '<img src="1.png" style="width: 99px;">',
+            $hq->find('img')->eq(0)->outerHtml()
+        );
+
+        $hq->find('img')->eq(0)->removeCss('WIDTH');
+        $this->assertEquals(
+            '<img src="1.png" style="">',
+            $hq->find('img')->eq(0)->outerHtml()
         );
     }
 }

@@ -1,7 +1,7 @@
 <?php
 // phpcs:disable PSR1.Classes.ClassDeclaration.MissingNamespace
 
-use Sulao\HtmlQuery\HQ;
+use Sulao\HtmlQuery\{Exception, HQ};
 
 class NodeTest extends TestCase
 {
@@ -31,6 +31,18 @@ class NodeTest extends TestCase
             $hq->find('.image')->html()
         );
 
+        $exception = null;
+        try {
+            $hq->find('p.foo')->wrap(
+                'no html tag'
+            );
+        } catch (Exception $exception) {
+        }
+        $this->assertInstanceOf(Exception::class, $exception);
+        $this->assertEquals(
+            'Invalid wrap html format.',
+            $exception->getMessage()
+        );
 
         $html = '
             <form method="post" action="/">
@@ -109,6 +121,19 @@ class NodeTest extends TestCase
             $hq->find('div.image')
                 ->wrapInner('<div><p class="big"></p></div>')
                 ->html()
+        );
+
+        $exception = null;
+        try {
+            $hq->find('img')->wrapInner(
+                'no html tag'
+            );
+        } catch (Exception $exception) {
+        }
+        $this->assertInstanceOf(Exception::class, $exception);
+        $this->assertEquals(
+            'Invalid wrap html format.',
+            $exception->getMessage()
         );
 
         $html = '
@@ -301,6 +326,21 @@ class NodeTest extends TestCase
         $this->assertEquals(
             '',
             trim($hq->find('div.image')->html())
+        );
+
+        $html = '
+            <ul class="ul">
+                <li>PHP</li>
+            </ul>
+        ';
+        $hq = HQ::html($html);
+        $hq->unwrapSelf();
+        // won't unwrap if no parent node
+        $this->assertHtmlEquals(
+            '<ul class="ul">
+                <li>PHP</li>
+            </ul>',
+            $hq->outerHtml()
         );
     }
 
@@ -909,6 +949,17 @@ class NodeTest extends TestCase
             </body>',
             $hq->outerHtml()
         );
+
+        $html = '<ul></ul>';
+        $hq = HQ::html($html);
+        $hq->find('ul')->prepend('<li>js</li>');
+        $this->assertHtmlEquals(
+            '
+            <ul>
+                <li>js</li>
+            </ul>',
+            $hq->find('ul')->outerHtml()
+        );
     }
 
     public function testPrependTo()
@@ -1065,6 +1116,21 @@ class NodeTest extends TestCase
             <li>css</li>
             <li>html</li>',
             $hq->find('.ul')->html()
+        );
+
+        $html = '
+            <ul class="ul">
+                <li>PHP</li>
+            </ul>
+        ';
+        $hq = HQ::html($html);
+        $hq->replaceWith('<ul class="ul"><li>dom</li></ul>');
+        // won't replace if no parent node
+        $this->assertHtmlEquals(
+            '<ul class="ul">
+                <li>PHP</li>
+            </ul>',
+            $hq->outerHtml()
         );
     }
 
