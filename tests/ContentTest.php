@@ -53,6 +53,28 @@ class ContentTest extends TestCase
                 ->val("It's really good.")
                 ->val()
         );
+
+        $hq->find('option')->removeAttr('selected');
+        $this->assertEquals(
+            '1',
+            $hq->find("select[name='type']")->val()
+        );
+
+        $hq->val('test');
+        $this->assertNull($hq->val());
+        $this->assertNull($hq->find('form')->val());
+
+        $html = '
+            <form method="post" action="/">
+                <select class="foo" name="type">
+                </select>
+            </form>
+        ';
+        $hq = HQ::html($html);
+        $this->assertNull($hq->find("select[name='type']")->val());
+
+        $hq->find("select[name='type']")->val(2);
+        $this->assertNull($hq->find("select[name='type']")->val());
     }
 
     public function testHtml()

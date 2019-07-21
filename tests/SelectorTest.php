@@ -863,6 +863,7 @@ class SelectorTest extends TestCase
 
         $this->assertFalse($hq->find('img')->eq(1)->is('.foo'));
         $this->assertFalse($hq->find('img')->slice(1)->is('.foo'));
+        $this->assertFalse($hq->find('.null')->slice(1)->is('.foo'));
     }
 
     public function testInvoke()

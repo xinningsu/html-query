@@ -466,11 +466,7 @@ trait Selector
      */
     protected function shouldResolve(Closure $function, $index = 0)
     {
-        try {
-            $reflection = new ReflectionFunction($function);
-        } catch (ReflectionException $exception) {
-            return false;
-        }
+        $reflection = new ReflectionFunction($function);
 
         $parameters = $reflection->getParameters();
         if ($parameters && array_key_exists($index, $parameters)) {

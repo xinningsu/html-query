@@ -2,6 +2,7 @@
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Build Status](https://api.travis-ci.org/xinningsu/html-query.svg?branch=master)](https://travis-ci.org/xinningsu/html-query)
+[![Coverage Status](https://coveralls.io/repos/github/xinningsu/html-query/badge.svg?branch=master)](https://coveralls.io/github/xinningsu/html-query)
 
 A jQuery-like html processor written in PHP
 
@@ -245,4 +246,4 @@ echo $hq('.container')->outerHtml();
 
 # License
 
-MIT
+[MIT](./LICENSE)

@@ -1,7 +1,7 @@
 <?php
 // phpcs:disable PSR1.Classes.ClassDeclaration.MissingNamespace
 
-use Sulao\HtmlQuery\{HQ, HtmlQuery};
+use Sulao\HtmlQuery\{Exception, HQ, HtmlQuery};
 
 class SelectionTest extends TestCase
 {
@@ -70,6 +70,17 @@ class SelectionTest extends TestCase
         $images[] = $hq("img[src='1.png']")[0];
         $this->assertCount(3, $images);
         $this->assertEquals('1.png', $images->last()->attr('src'));
+
+        $exception = null;
+        try {
+            $images[] = 'incorrect content';
+        } catch (Exception $exception) {
+        }
+        $this->assertInstanceOf(Exception::class, $exception);
+        $this->assertEquals(
+            'Expect an instance of DOMNode, string given.',
+            $exception->getMessage()
+        );
     }
 
     public function testIterator()
