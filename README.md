@@ -1,4 +1,8 @@
 # html-query
+
+[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![Build Status](https://api.travis-ci.org/xinningsu/html-query.svg?branch=master)](https://travis-ci.org/xinningsu/html-query)
+
 A jQuery-like html processor written in PHP
 
 # Quick Start
