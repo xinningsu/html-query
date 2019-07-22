@@ -597,7 +597,7 @@ class HtmlQuery extends Selection
             }
 
             $classNames = Helper::splitClass($className);
-            $classes = Helper::splitClass($this->getAttr('class'));
+            $classes = Helper::splitClass((string) $this->getAttr('class'));
 
             $classArr = array_diff($classes, $classNames);
             $classArr = array_merge(
@@ -1100,9 +1100,10 @@ class HtmlQuery extends Selection
      */
     protected function validateNodes($nodes)
     {
-        // Handle false, null
-        if (!$nodes) {
+        if (empty($nodes)) {
             $nodes = [];
+        } elseif ($nodes instanceof DOMNode) {
+            $nodes = [$nodes];
         }
 
         if (!is_array($nodes) && !($nodes instanceof Traversable)) {
