@@ -89,6 +89,12 @@ class HtmlQueryTest extends TestCase
             $validateNodes(array_merge($nodes, $nodes))
         );
 
+        $fruits = $hq->find('.fruit');
+        $this->assertEquals(
+            $fruits->getNodes(),
+            $validateNodes($fruits)
+        );
+
         $exception = null;
         try {
             $validateNodes([1]);

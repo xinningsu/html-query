@@ -1102,11 +1102,9 @@ class HtmlQuery extends Selection
     {
         if (empty($nodes)) {
             $nodes = [];
-        } elseif ($nodes instanceof DOMNode) {
-            $nodes = [$nodes];
-        }
-
-        if (!is_array($nodes) && !($nodes instanceof Traversable)) {
+        } elseif ($nodes instanceof Traversable) {
+            $nodes = iterator_to_array($nodes);
+        } elseif ($nodes instanceof DOMNode || !is_array($nodes)) {
             $nodes = [$nodes];
         }
 
