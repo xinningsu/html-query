@@ -407,7 +407,7 @@ class AttributeTest extends TestCase
 
         $this->assertEquals(
             '<p>test</p>',
-            $hq->find('p')->toggleClass(null, false)->outerHtml()
+            $hq->find('p')->removeClass()->outerHtml()
         );
 
         $this->assertEquals(

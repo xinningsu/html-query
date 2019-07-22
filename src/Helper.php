@@ -3,6 +3,7 @@
 namespace Sulao\HtmlQuery;
 
 use Symfony\Component\CssSelector\CssSelectorConverter;
+use Traversable;
 
 /**
  * Class Helper
@@ -32,11 +33,11 @@ class Helper
     /**
      * Strict Array Unique
      *
-     * @param array $arr
+     * @param array|Traversable $arr
      *
      * @return array
      */
-    public static function strictArrayUnique(array $arr): array
+    public static function strictArrayUnique($arr): array
     {
         $uniqueArr = [];
         foreach ($arr as $value) {
@@ -91,7 +92,7 @@ class Helper
      */
     public static function splitClass(string $className): array
     {
-        return preg_split('/\s+/', trim($className));
+        return preg_split('/\s+/', trim($className)) ?: [];
     }
 
     /**

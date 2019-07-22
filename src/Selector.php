@@ -4,7 +4,7 @@ namespace Sulao\HtmlQuery;
 
 use Closure;
 use DOMDocument, DOMNode, DOMNodeList, DOMXPath;
-use ReflectionException, ReflectionFunction;
+use ReflectionFunction;
 
 /**
  * Trait Selector
@@ -81,7 +81,7 @@ trait Selector
             $selection = $this->xpathFind(Helper::toXpath($selector));
 
             return Helper::isIdSelector($selector)
-                ? $selection->first()
+                ? $this->resolve($selection->nodes[0] ?? [])
                 : $selection;
         }
 
@@ -294,7 +294,7 @@ trait Selector
      */
     public function add($selector)
     {
-        $nodes = $this->targetResolve($selector)->toArray();
+        $nodes = $this->targetResolve($selector)->nodes;
 
         $nodes = array_merge($this->nodes, $nodes);
         $nodes = Helper::strictArrayUnique($nodes);
@@ -328,7 +328,7 @@ trait Selector
      */
     public function not($selector)
     {
-        $nodes = $this->targetResolve($selector)->toArray();
+        $nodes = $this->targetResolve($selector)->nodes;
         $nodes = Helper::strictArrayDiff($this->nodes, $nodes);
 
         return $this->resolve($nodes);
@@ -344,8 +344,8 @@ trait Selector
      */
     public function is($selector): bool
     {
-        if ($this->count()) {
-            return (bool) $this->intersect($selector)->count();
+        if (count($this->nodes)) {
+            return (bool) count($this->intersect($selector)->nodes);
         }
 
         return false;
@@ -430,7 +430,7 @@ trait Selector
     protected function relationResolve(string $relation, ?string $until = null)
     {
         $until = !is_null($until)
-            ? $this->targetResolve($until)->toArray()
+            ? $this->targetResolve($until)->nodes
             : null;
 
         $nodes = [];
@@ -469,7 +469,7 @@ trait Selector
         $reflection = new ReflectionFunction($function);
 
         $parameters = $reflection->getParameters();
-        if ($parameters && array_key_exists($index, $parameters)) {
+        if (!empty($parameters) && array_key_exists($index, $parameters)) {
             $class = $parameters[$index]->getClass();
             if ($class && $class->isInstance($this)) {
                 return true;

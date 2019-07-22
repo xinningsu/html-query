@@ -157,19 +157,19 @@ class HtmlQuery extends Selection
      */
     public function attr($name, $value = null)
     {
-        if (is_null($value) && !is_array($name)) {
-            return $this->getAttr($name);
-        }
-
         if (is_array($name)) {
             foreach ($name as $key => $val) {
                 $this->setAttr($key, $val);
             }
-        } else {
-            $this->setAttr($name, $value);
+
+            return $this;
         }
 
-        return $this;
+        if (!is_null($value)) {
+            return $this->setAttr($name, $value);
+        }
+
+        return $this->getAttr($name);
     }
 
     /**
@@ -317,7 +317,7 @@ class HtmlQuery extends Selection
         }
 
         if (!is_null($value) && !is_string($value)) {
-            $value = json_encode($value);
+            $value = (string) json_encode($value);
         }
 
         $result = $this->attr($name, $value);
@@ -499,11 +499,11 @@ class HtmlQuery extends Selection
             }
 
             $classNames = Helper::splitClass($className);
-            $class = $node->getAttr('class');
+            $class = (string) $node->getAttr('class');
             $classes = Helper::splitClass($class);
 
             $classArr = array_diff($classNames, $classes);
-            if (!$classArr) {
+            if (empty($classArr)) {
                 return;
             }
 
@@ -527,7 +527,7 @@ class HtmlQuery extends Selection
                     return false;
                 }
 
-                $class = $node->getAttr('class');
+                $class = (string) $node->getAttr('class');
                 $classes = Helper::splitClass($class);
 
                 return in_array($className, $classes);
@@ -556,11 +556,11 @@ class HtmlQuery extends Selection
             }
 
             $classNames = Helper::splitClass($className);
-            $class = $node->getAttr('class');
+            $class = (string) $node->getAttr('class');
             $classes = Helper::splitClass($class);
 
             $classArr = array_diff($classes, $classNames);
-            if (!$classArr) {
+            if (empty($classArr)) {
                 $node->removeAttr('class');
                 return;
             }
@@ -574,12 +574,12 @@ class HtmlQuery extends Selection
      * Add or remove class(es) from each matched node, depending on
      * either the class's presence or the value of the state argument.
      *
-     * @param string|null $className
+     * @param string $className
      * @param bool|null   $state
      *
      * @return static
      */
-    public function toggleClass(?string $className, ?bool $state = null)
+    public function toggleClass(string $className, ?bool $state = null)
     {
         return $this->each(function (HtmlQuery $node) use ($className, $state) {
             if (!is_null($state)) {
@@ -604,7 +604,7 @@ class HtmlQuery extends Selection
                 $classArr,
                 array_diff($classNames, $classes)
             );
-            if (!$classArr) {
+            if (empty($classArr)) {
                 $node->removeClass($className);
                 return;
             }
@@ -698,7 +698,7 @@ class HtmlQuery extends Selection
                 $arr = array_combine(
                     $allKeys,
                     array_map('strtolower', $allKeys)
-                );
+                ) ?: [];
 
                 $keys = array_keys($arr, strtolower($name));
                 foreach ($keys as $key) {
@@ -737,7 +737,7 @@ class HtmlQuery extends Selection
                 $arr = array_combine(
                     $allKeys,
                     array_map('strtolower', $allKeys)
-                );
+                ) ?: [];
 
                 $keys = array_keys($arr, strtolower($name));
                 foreach ($keys as $key) {
@@ -968,7 +968,9 @@ class HtmlQuery extends Selection
     public function wrap($content)
     {
         $content = $this->contentResolve($content);
-        if (!$content->count()) {
+        $newNode = $content[0];
+
+        if (empty($newNode)) {
             return $this;
         }
 
@@ -1000,11 +1002,11 @@ class HtmlQuery extends Selection
     public function wrapInner($content)
     {
         $content = $this->contentResolve($content);
-        if (!$content->count()) {
+        $newNode = $content[0];
+
+        if (empty($newNode)) {
             return $this;
         }
-
-        $newNode = $content[0];
 
         return $this->each(function (DOMNode $node, $index) use ($newNode) {
             $newNode = $index !== $this->count() - 1
