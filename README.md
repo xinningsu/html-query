@@ -5,6 +5,9 @@
 [![Coverage Status](https://coveralls.io/repos/github/xinningsu/html-query/badge.svg?branch=master)](https://coveralls.io/github/xinningsu/html-query)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/xinningsu/html-query/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/xinningsu/html-query)
 [![Code Intelligence Status](https://scrutinizer-ci.com/g/xinningsu/html-query/badges/code-intelligence.svg?b=master)](https://scrutinizer-ci.com/g/xinningsu/html-query)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=xinningsu_html-query&metric=alert_status)](https://sonarcloud.io/dashboard?id=xinningsu_html-query)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=xinningsu_html-query&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=xinningsu_html-query)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=xinningsu_html-query&metric=security_rating)](https://sonarcloud.io/dashboard?id=xinningsu_html-query)
 [![Maintainability](https://api.codeclimate.com/v1/badges/18669386ce65532b228f/maintainability)](https://codeclimate.com/github/xinningsu/html-query/maintainability)
 
 A jQuery-like html processor written in PHP
