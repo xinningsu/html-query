@@ -4,8 +4,9 @@ namespace Sulao\HtmlQuery;
 
 use ArrayAccess, ArrayIterator;
 use Closure, Countable;
-use DOMDocument, DOMNode;
+use DOMDocument, DOMNode, DOMElement;
 use IteratorAggregate;
+use ReflectionFunction;
 
 /**
  * Class Selection
@@ -46,12 +47,15 @@ abstract class Selection implements Countable, IteratorAggregate, ArrayAccess
      */
     public function each(Closure $function, bool $reverse = false)
     {
-        $resolve = $this->shouldResolve($function, 0);
+        $class = $this->getClosureClass($function, 0);
 
         $nodes = $reverse ? array_reverse($this->nodes, true) : $this->nodes;
         foreach ($nodes as $index => $node) {
-            $node = $resolve ? $this->resolve($node) : $node;
-            $function($node, $index);
+            $node = $this->closureResolve($class, $node);
+
+            if (!empty($node)) {
+                $function($node, $index);
+            }
         }
 
         return $this;
@@ -67,12 +71,12 @@ abstract class Selection implements Countable, IteratorAggregate, ArrayAccess
      */
     public function map(Closure $function)
     {
-        $resolve = $this->shouldResolve($function, 0);
+        $class = $this->getClosureClass($function, 0);
 
         $data = [];
         foreach ($this->nodes as $index => $node) {
-            $node = $resolve ? $this->resolve($node) : $node;
-            $data[] = $function($node, $index);
+            $node = $this->closureResolve($class, $node);
+            $data[] = !empty($node) ? $function($node, $index) : null;
         }
 
         return $data;
@@ -88,11 +92,11 @@ abstract class Selection implements Countable, IteratorAggregate, ArrayAccess
      */
     public function mapAnyTrue(Closure $function)
     {
-        $resolve = $this->shouldResolve($function, 0);
+        $class = $this->getClosureClass($function, 0);
 
         foreach ($this->nodes as $index => $node) {
-            $node = $resolve ? $this->resolve($node) : $node;
-            if ($function($node, $index)) {
+            $node = $this->closureResolve($class, $node);
+            if (!empty($node) && $function($node, $index)) {
                 return true;
             }
         }
@@ -114,10 +118,10 @@ abstract class Selection implements Countable, IteratorAggregate, ArrayAccess
             return null;
         }
 
-        $resolve = $this->shouldResolve($function, 0);
-        $node = $resolve ? $this->resolve($this->nodes[0]) : $this->nodes[0];
+        $class = $this->getClosureClass($function, 0);
+        $node = $this->closureResolve($class, $this->nodes[0]);
 
-        return $function($node);
+        return !empty($node) ? $function($node) : null;
     }
 
     /**
@@ -200,8 +204,7 @@ abstract class Selection implements Countable, IteratorAggregate, ArrayAccess
     {
         if (!($value instanceof DOMNode)) {
             throw new Exception(
-                'Expect an instance of DOMNode, '
-                    . gettype($value) . ' given.'
+                'Expect an instance of DOMNode, ' . gettype($value) . ' given.'
             );
         }
 
@@ -223,5 +226,55 @@ abstract class Selection implements Countable, IteratorAggregate, ArrayAccess
     public function offsetGet($offset)
     {
         return isset($this->nodes[$offset]) ? $this->nodes[$offset] : null;
+    }
+
+
+
+    /**
+     * Get the class of the specified parameter of the closure.
+     *
+     * @param Closure $function
+     * @param int     $index    Which parameter of the closure, starts with 0
+     *
+     * @return string
+     */
+    protected function getClosureClass(Closure $function, int $index)
+    {
+        $reflection = new ReflectionFunction($function);
+        $parameters = $reflection->getParameters();
+
+        if (!empty($parameters) && array_key_exists($index, $parameters)) {
+            $class = $parameters[$index]->getClass();
+            if (!empty($class)) {
+                return $class->getName();
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * Resolve the node to static or HtmlElement instance or leaving it as DOMNode,
+     * Then pass it to closure
+     *
+     * @param string  $class
+     * @param DOMNode $node
+     *
+     * @return DOMNode|HtmlElement|HtmlNode|static|null
+     */
+    protected function closureResolve(string $class, DOMNode $node)
+    {
+        if ($class === static::class) {
+            return $this->resolve($node);
+        } elseif ($class === HtmlElement::class) {
+            if (!($node instanceof DOMElement)) {
+                return null;
+            }
+            return new HtmlElement($node);
+        } elseif ($class === HtmlNode::class) {
+            return new HtmlNode($node);
+        }
+
+        return $node;
     }
 }

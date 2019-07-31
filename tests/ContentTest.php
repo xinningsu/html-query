@@ -1,7 +1,7 @@
 <?php
 // phpcs:disable PSR1.Classes.ClassDeclaration.MissingNamespace
 
-use Sulao\HtmlQuery\HQ;
+use Sulao\HtmlQuery\{HQ, HtmlQuery};
 
 class ContentTest extends TestCase
 {
@@ -60,8 +60,6 @@ class ContentTest extends TestCase
             $hq->find("select[name='type']")->val()
         );
 
-        $hq->val('test');
-        $this->assertNull($hq->val());
         $this->assertNull($hq->find('form')->val());
 
         $html = '
@@ -162,6 +160,9 @@ class ContentTest extends TestCase
             $hq->find('p')->eq(1)->outerHtml(),
             '<p>test2</p>'
         );
+
+        $query = new HtmlQuery($hq->getDoc(), $hq->getDoc());
+        $this->assertHtmlEquals($html, $query->outerHtml());
     }
 
     public function testText()

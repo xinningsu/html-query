@@ -2,6 +2,7 @@
 
 namespace Sulao\HtmlQuery;
 
+use DOMDocument, DOMNode, DOMNodeList, DOMXPath;
 use Symfony\Component\CssSelector\CssSelectorConverter;
 use Traversable;
 
@@ -81,6 +82,26 @@ class Helper
         });
 
         return array_values($arr);
+    }
+
+    /**
+     * Case insensitive search
+     *
+     * @param string   $needle
+     * @param string[] $haystack
+     *
+     * @return array
+     */
+    public static function caseInsensitiveSearch(
+        string $needle,
+        array $haystack
+    ): array {
+        $needle = strtolower($needle);
+        $match = array_filter($haystack, function ($value) use ($needle) {
+            return $needle === strtolower($value);
+        });
+
+        return array_values($match);
     }
 
     /**
@@ -175,5 +196,54 @@ class Helper
         }
 
         return false;
+    }
+
+    /**
+     * Query xpath to an array of DOMNode
+     *
+     * @param string       $xpath
+     * @param DOMDocument  $doc
+     * @param DOMNode|null $node
+     *
+     * @return DOMNode[]
+     */
+    public static function xpathQuery(
+        string $xpath,
+        DOMDocument $doc,
+        ?DOMNode $node = null
+    ): array {
+        $docXpath = new DOMXpath($doc);
+        $nodeList = $docXpath->query($xpath, $node);
+
+        if (!($nodeList instanceof DOMNodeList)) {
+            return [];
+        }
+
+        return iterator_to_array($nodeList);
+    }
+
+    /**
+     * Get the node with the relationship of current node.
+     *
+     * @param DOMNode $node
+     * @param string  $relation
+     *
+     * @return DOMNode|null
+     */
+    public static function getRelationNode(DOMNode $node, string $relation)
+    {
+        /** @var DOMNode $node */
+        while (($node = $node->$relation)
+            && $node instanceof DOMNode
+            && $node->nodeType !== XML_DOCUMENT_NODE
+        ) {
+            if ($node->nodeType !== XML_ELEMENT_NODE) {
+                continue;
+            }
+
+            return $node;
+        }
+
+        return null;
     }
 }

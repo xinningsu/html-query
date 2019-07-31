@@ -65,8 +65,6 @@ class AttributeTest extends TestCase
             100,
             $hq->find('img')->eq(1)->setAttr('width', 100)->attr('width')
         );
-
-        $this->assertNull($hq->attr('none'));
     }
 
     public function testRemoveAttr()
@@ -154,8 +152,6 @@ class AttributeTest extends TestCase
 
         $this->assertTrue($hq->find('img')->eq(0)->hasAttr('alt'));
         $this->assertFalse($hq->find('img')->eq(1)->hasAttr('alt'));
-
-        $this->assertFalse($hq->hasAttr('alt'));
     }
 
     public function testProp()
@@ -251,6 +247,9 @@ class AttributeTest extends TestCase
         $data = $hq->find('.p-0')->data('content');
         $this->assertEquals(1, $data->id);
         $this->assertEquals('dom', $data->tag);
+
+        $hq->find('.p-0')->data('json', '{id:1, test:');
+        $this->assertEquals('{id:1, test:', $hq->find('.p-0')->data('json'));
     }
 
     public function testHasData()
@@ -509,6 +508,12 @@ class AttributeTest extends TestCase
         );
 
         $hq->find('img')->eq(0)->removeCss('WIDTH');
+        $this->assertEquals(
+            '<img src="1.png" style="">',
+            $hq->find('img')->eq(0)->outerHtml()
+        );
+
+        $hq->find('img')->eq(0)->removeCss('width');
         $this->assertEquals(
             '<img src="1.png" style="">',
             $hq->find('img')->eq(0)->outerHtml()

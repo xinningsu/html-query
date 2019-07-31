@@ -1,7 +1,7 @@
 <?php
 // phpcs:disable PSR1.Classes.ClassDeclaration.MissingNamespace
 
-use Sulao\HtmlQuery\{Exception, HQ};
+use Sulao\HtmlQuery\{Exception, HQ, HtmlQuery};
 
 class NodeTest extends TestCase
 {
@@ -333,15 +333,6 @@ class NodeTest extends TestCase
                 <li>PHP</li>
             </ul>
         ';
-        $hq = HQ::html($html);
-        $hq->unwrapSelf();
-        // won't unwrap if no parent node
-        $this->assertHtmlEquals(
-            '<ul class="ul">
-                <li>PHP</li>
-            </ul>',
-            $hq->outerHtml()
-        );
     }
 
     public function testBefore()
@@ -603,6 +594,14 @@ class NodeTest extends TestCase
                 <h2>Greetings 3</h2>
             </body>',
             $hq->outerHtml()
+        );
+
+        $html = '<ul><li class="php">PHP</li></ul>';
+        $hq = HQ::html($html);
+        $hq->find('.php')->after('<li class="front">front end</li>');
+        $this->assertHtmlEquals(
+            '<ul><li class="php">PHP</li><li class="front">front end</li></ul>',
+            $hq->find('ul')->outerHtml()
         );
     }
 
@@ -1059,6 +1058,12 @@ class NodeTest extends TestCase
             </div>
         ';
         $hq = HQ::html($html);
+
+        $query = new HtmlQuery($hq->getDoc(), $hq->getDoc());
+        $query->replaceWith('<li>js</li>');
+        $this->assertHtmlEquals($html, $query->outerHtml());
+
+
         $hq->find('.ul li')->replaceWith('<li>js</li>');
         $this->assertHtmlEquals(
             '
@@ -1123,15 +1128,6 @@ class NodeTest extends TestCase
                 <li>PHP</li>
             </ul>
         ';
-        $hq = HQ::html($html);
-        $hq->replaceWith('<ul class="ul"><li>dom</li></ul>');
-        // won't replace if no parent node
-        $this->assertHtmlEquals(
-            '<ul class="ul">
-                <li>PHP</li>
-            </ul>',
-            $hq->outerHtml()
-        );
     }
 
     public function testReplaceAll()

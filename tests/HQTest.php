@@ -1,7 +1,7 @@
 <?php
 // phpcs:disable PSR1.Classes.ClassDeclaration.MissingNamespace
 
-use Sulao\HtmlQuery\{HQ, HtmlQuery};
+use Sulao\HtmlQuery\{HQ, HtmlDocument, HtmlQuery};
 
 class HQTest extends TestCase
 {
@@ -20,8 +20,7 @@ class HQTest extends TestCase
         ';
         $hq = HQ::html($html);
 
-        $this->assertInstanceOf(HtmlQuery::class, $hq);
-        $this->assertCount(1, $hq);
+        $this->assertInstanceOf(HtmlDocument::class, $hq);
         $this->assertHtmlEquals($html, $hq->outerHtml());
     }
 
@@ -30,16 +29,14 @@ class HQTest extends TestCase
         $file = __DIR__ . '/test.html';
         $hq = HQ::htmlFile($file);
 
-        $this->assertInstanceOf(HtmlQuery::class, $hq);
-        $this->assertCount(1, $hq);
+        $this->assertInstanceOf(HtmlDocument::class, $hq);
         $this->assertHtmlEquals(file_get_contents($file), $hq->outerHtml());
     }
 
     public function testHtmlInstance()
     {
         $hq = HQ::instance();
-        $this->assertInstanceOf(HtmlQuery::class, $hq);
-        $this->assertCount(1, $hq);
+        $this->assertInstanceOf(HtmlDocument::class, $hq);
         $this->assertEmpty(trim($hq->outerHtml()));
 
         $html = '
@@ -55,8 +52,7 @@ class HQTest extends TestCase
         ';
         $hq = HQ::instance($html);
 
-        $this->assertInstanceOf(HtmlQuery::class, $hq);
-        $this->assertCount(1, $hq);
+        $this->assertInstanceOf(HtmlDocument::class, $hq);
         $this->assertHtmlEquals($html, $hq->outerHtml());
     }
 }

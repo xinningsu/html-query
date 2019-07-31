@@ -1,22 +1,24 @@
 <?php
 // phpcs:disable PSR1.Classes.ClassDeclaration.MissingNamespace
 
-use Sulao\HtmlQuery\{Helper, HQ, HtmlQuery};
+use Sulao\HtmlQuery\{Helper, HQ, HtmlElement, HtmlQuery};
 
 class ResolverTest extends TestCase
 {
     public function testResolve()
     {
         $html = '
-            <div id="foo"><p>foo</p></div>
-            <div id="bar">bar</div>
-            <div class="fruit bar">apple</div>
-            <div class="fruit">orange</div>
-            <div class="fruit">banana</div>
+            <body>
+                <div id="foo"><p>foo</p></div>
+                <div id="bar">bar</div>
+                <div class="fruit bar">apple</div>
+                <div class="fruit">orange</div>
+                <div class="fruit">banana</div>
+            </body>
         ';
 
         $hq = HQ::html($html);
-        $nodes = $this->protectMethod($hq, 'xpathQuery')(
+        $nodes = $this->protectMethod($hq('body'), 'xpathQuery')(
             Helper::toXpath('.fruit')
         );
         $instance = $this->protectMethod($hq, 'resolve')($nodes);
@@ -27,28 +29,30 @@ class ResolverTest extends TestCase
         $this->assertEquals('apple', $instance->html());
     }
 
-    public function testXpathFind()
+    public function testXpathResolve()
     {
         $html = '
-            <div id="foo"><p>foo</p></div>
-            <div id="bar">bar</div>
-            <div class="fruit bar">apple</div>
-            <div class="fruit">orange</div>
-            <div class="fruit">banana</div>
+            <body>
+                <div id="foo"><p>foo</p></div>
+                <div id="bar">bar</div>
+                <div class="fruit bar">apple</div>
+                <div class="fruit">orange</div>
+                <div class="fruit">banana</div>
+            </body>
         ';
         $doc = new DOMDocument();
         $doc->loadHTML($html);
 
-        $hq = HQ::html($html);
+        $hq = HQ::html($html)('body');
 
-        $xpathFind = $this->protectMethod($hq, 'xpathFind');
+        $xpathResolve = $this->protectMethod($hq, 'xpathResolve');
 
         $xpath = "descendant::*[@class and contains(concat(' ', "
             . "normalize-space(@class), ' '), ' fruit ')]";
 
         $this->assertEquals(
             $this->protectMethod($hq, 'xpathQuery')($xpath),
-            $xpathFind($xpath)->toArray()
+            $xpathResolve($xpath)->toArray()
         );
     }
 
@@ -103,13 +107,15 @@ class ResolverTest extends TestCase
     public function testTargetResolve()
     {
         $html = '
-            <div id="foo"><p>foo</p></div>
-            <div id="bar">bar</div>
-            <div class="fruit bar">apple</div>
-            <div class="fruit">orange</div>
-            <div class="fruit">banana</div>
+            <body>
+                <div id="foo"><p>foo</p></div>
+                <div id="bar">bar</div>
+                <div class="fruit bar">apple</div>
+                <div class="fruit">orange</div>
+                <div class="fruit">banana</div>
+            </body>
         ';
-        $hq = HQ::html($html);
+        $hq = HQ::html($html)('body');
 
         $nodes = $this->protectMethod($hq, 'xpathQuery')(
             Helper::toXpath('.bar')
@@ -136,7 +142,7 @@ class ResolverTest extends TestCase
                 <div class="fruit">banana</div>
             </div>
         ';
-        $hq = HQ::html($html);
+        $hq = HQ::html($html)('.container');
 
         ($this->protectMethod($hq, 'contentResolve')(
             '<div class="fruit">pear</div>'
@@ -220,20 +226,64 @@ class ResolverTest extends TestCase
         );
     }
 
-    public function testShouldResolve()
+    public function testGetClosureClass()
     {
         $doc = new DOMDocument();
         $hq = new HtmlQuery($doc, []);
-        $shouldResolve = $this->protectMethod($hq, 'shouldResolve');
+        $getClosureClass = $this->protectMethod($hq, 'getClosureClass');
 
-        $this->assertTrue($shouldResolve(function (HtmlQuery $hq) {
-        }, 0));
-        $this->assertTrue($shouldResolve(function ($index, HtmlQuery $hq) {
-        }, 1));
+        $this->assertEquals(
+            $getClosureClass(function (HtmlQuery $hq) {
+            }, 0),
+            HtmlQuery::class
+        );
 
-        $this->assertFalse($shouldResolve(function ($hq) {
-        }, 0));
-        $this->assertFalse($shouldResolve(function ($index, DOMNode $hq) {
-        }, 1));
+        $this->assertEquals(
+            $getClosureClass(function ($index, HtmlElement $hq) {
+            }, 1),
+            HtmlElement::class
+        );
+
+        $this->assertEquals(
+            $getClosureClass(function ($hq) {
+            }, 0),
+            ''
+        );
+        $this->assertEquals(
+            $getClosureClass(function ($index, DOMNode $hq) {
+            }, 1),
+            DOMNode::class
+        );
+    }
+
+    public function testClosureResolve()
+    {
+        $html = '
+            <div id="foo"><p>foo</p></div>
+            <div id="bar">bar</div>
+            <div class="fruit bar">apple</div>
+            <div class="fruit">orange</div>
+            <div class="fruit">banana</div>
+        ';
+
+        $hq = HQ::html($html)->find('#foo');
+
+        $closureResolve = $this->protectMethod($hq, 'closureResolve');
+
+
+        $this->assertInstanceOf(
+            HtmlQuery::class,
+            $closureResolve(HtmlQuery::class, $hq[0])
+        );
+
+        $this->assertInstanceOf(
+            HtmlElement::class,
+            $closureResolve(HtmlElement::class, $hq[0])
+        );
+
+        $this->assertInstanceOf(
+            DOMNode::class,
+            $closureResolve('', $hq[0])
+        );
     }
 }

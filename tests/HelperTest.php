@@ -108,4 +108,31 @@ class HelperTest extends TestCase
         $this->assertFalse(Helper::isIdSelector('.class'));
         $this->assertFalse(Helper::isIdSelector('ul > li  p'));
     }
+
+    public function testCaseInsensitiveSearch()
+    {
+        $arr = ['needle', 'needle', 'haystack'];
+        $this->assertEquals(
+            ['needle', 'needle'],
+            Helper::caseInsensitiveSearch('needle', $arr)
+        );
+        $this->assertEquals(
+            ['needle', 'needle'],
+            Helper::caseInsensitiveSearch('neeDle', $arr)
+        );
+        $this->assertEquals(
+            [],
+            Helper::caseInsensitiveSearch('needles', $arr)
+        );
+
+        $arr = ['needle', 'NEEDLE', 'haystack'];
+        $this->assertEquals(
+            ['needle', 'NEEDLE'],
+            Helper::caseInsensitiveSearch('needle', $arr)
+        );
+        $this->assertEquals(
+            ['needle', 'NEEDLE'],
+            Helper::caseInsensitiveSearch('neeDle', $arr)
+        );
+    }
 }

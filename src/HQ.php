@@ -16,7 +16,7 @@ class HQ
      *
      * @param string $html
      *
-     * @return HtmlQuery
+     * @return HtmlDocument
      */
     public static function html(string $html)
     {
@@ -28,7 +28,7 @@ class HQ
      *
      * @param string $file
      *
-     * @return HtmlQuery
+     * @return HtmlDocument
      */
     public static function htmlFile(string $file)
     {
@@ -40,7 +40,7 @@ class HQ
      *
      * @param string|null $html
      *
-     * @return HtmlQuery
+     * @return HtmlDocument
      */
     public static function instance(?string $html = null)
     {
@@ -50,6 +50,6 @@ class HQ
             $doc->loadHTML($html, LIBXML_HTML_NODEFDTD | LIBXML_HTML_NOIMPLIED);
         }
 
-        return new HtmlQuery($doc, $doc);
+        return new HtmlDocument($doc);
     }
 }

@@ -3,8 +3,7 @@
 namespace Sulao\HtmlQuery;
 
 use Closure;
-use DOMDocument, DOMNode, DOMNodeList, DOMXPath;
-use ReflectionFunction;
+use DOMDocument, DOMNode, DOMNodeList;
 
 /**
  * Trait Selector
@@ -13,6 +12,8 @@ use ReflectionFunction;
  */
 trait Selector
 {
+    use Resolver;
+
     /**
      * @var DOMDocument
      */
@@ -23,15 +24,8 @@ trait Selector
      */
     protected $nodes;
 
-    /**
-     * Selector constructor.
-     *
-     * @param DOMDocument                          $doc
-     * @param DOMNode|DOMNode[]|DOMNodeList|static $nodes
-     *
-     * @return static
-     */
-    abstract public function __construct(DOMDocument $doc, $nodes);
+    abstract protected function getClosureClass(Closure $function, int $index);
+    abstract protected function closureResolve(string $class, DOMNode $node);
 
     /**
      *  Make the static object can be called as a function.
@@ -78,14 +72,14 @@ trait Selector
     public function find($selector)
     {
         if (is_string($selector)) {
-            $selection = $this->xpathFind(Helper::toXpath($selector));
+            $selection = $this->xpathResolve(Helper::toXpath($selector));
 
             return Helper::isIdSelector($selector)
                 ? $this->resolve($selection->nodes[0] ?? [])
                 : $selection;
         }
 
-        $descendants = $this->xpathFind('descendant::*');
+        $descendants = $this->xpathResolve('descendant::*');
 
         return $descendants->intersect($selector);
     }
@@ -101,13 +95,14 @@ trait Selector
     {
         if (is_string($selector)) {
             $xpath = Helper::toXpath($selector, 'self::');
-            return $this->xpathFind($xpath);
+            return $this->xpathResolve($xpath);
         } elseif ($selector instanceof Closure) {
-            $resolve = $this->shouldResolve($selector, 1);
+            $class = $this->getClosureClass($selector, 1);
 
             $nodes = [];
             foreach ($this->nodes as $key => $node) {
-                if ($selector($key, $resolve ? $this->resolve($node) : $node)) {
+                $resolve = $this->closureResolve($class, $node);
+                if (!empty($resolve) && $selector($key, $resolve)) {
                     $nodes[] = $node;
                 }
             }
@@ -131,7 +126,7 @@ trait Selector
         $selector = is_null($selector) ? '*' : $selector;
         $xpath = Helper::toXpath($selector, 'parent::');
 
-        return $this->xpathFind($xpath);
+        return $this->xpathResolve($xpath);
     }
 
     /**
@@ -147,7 +142,7 @@ trait Selector
         $selector = is_null($selector) ? '*' : $selector;
         $xpath = Helper::toXpath($selector, 'ancestor::');
 
-        return $this->xpathFind($xpath);
+        return $this->xpathResolve($xpath);
     }
 
     /**
@@ -176,7 +171,7 @@ trait Selector
         $selector = is_null($selector) ? '*' : $selector;
         $xpath = Helper::toXpath($selector, 'child::');
 
-        return $this->xpathFind($xpath);
+        return $this->xpathResolve($xpath);
     }
 
     /**
@@ -192,7 +187,7 @@ trait Selector
         $xpath = is_null($selector) ? '*' : Helper::toXpath($selector, '');
         $xpath = "preceding-sibling::{$xpath}|following-sibling::{$xpath}";
 
-        return $this->xpathFind($xpath);
+        return $this->xpathResolve($xpath);
     }
 
     /**
@@ -208,7 +203,7 @@ trait Selector
         $xpath = is_null($selector) ? '*' : Helper::toXpath($selector, '');
         $xpath = "preceding-sibling::{$xpath}[1]";
 
-        return $this->xpathFind($xpath);
+        return $this->xpathResolve($xpath);
     }
 
     /**
@@ -224,7 +219,7 @@ trait Selector
         $xpath = is_null($selector) ? '*' : Helper::toXpath($selector, '');
         $xpath = "preceding-sibling::{$xpath}";
 
-        return $this->xpathFind($xpath);
+        return $this->xpathResolve($xpath);
     }
 
     /**
@@ -253,7 +248,7 @@ trait Selector
         $xpath = is_null($selector) ? '*' : Helper::toXpath($selector, '');
         $xpath = "following-sibling::{$xpath}[1]";
 
-        return $this->xpathFind($xpath);
+        return $this->xpathResolve($xpath);
     }
 
     /**
@@ -269,7 +264,7 @@ trait Selector
         $xpath = is_null($selector) ? '*' : Helper::toXpath($selector, '');
         $xpath = "following-sibling::{$xpath}";
 
-        return $this->xpathFind($xpath);
+        return $this->xpathResolve($xpath);
     }
 
     /**
@@ -349,174 +344,5 @@ trait Selector
         }
 
         return false;
-    }
-
-    /**
-     * Resolve DOMNode(s) to a static instance.
-     *
-     * @param DOMNode|DOMNode[]|DOMNodeList|static $nodes
-     *
-     * @return static
-     */
-    protected function resolve($nodes)
-    {
-        if ($nodes instanceof static) {
-            return $nodes;
-        }
-
-        return new static($this->doc, $nodes);
-    }
-
-    /**
-     * If the parameter is a css selector, get the descendants
-     * of dom document filtered by the css selector.
-     * If the parameter is selection, resolve that selection to static object.
-     *
-     * @param string|DOMNode|DOMNode[]|DOMNodeList|static $selector
-     *
-     * @return static
-     */
-    protected function targetResolve($selector)
-    {
-        if (is_string($selector)) {
-            return $this->resolve($this->doc)->find($selector);
-        }
-
-        return $this->resolve($selector);
-    }
-
-    /**
-     * If the parameter is string, consider it as raw html,
-     * then create document fragment for it.
-     * If the parameter is selection, resolve that selection to static instance.
-     *
-     * @param string|DOMNode|DOMNode[]|DOMNodeList|static $content
-     *
-     * @return static
-     */
-    protected function contentResolve($content)
-    {
-        if (is_string($content)) {
-            return $this->htmlResolve($content);
-        }
-
-        return $this->resolve($content);
-    }
-
-    /**
-     * Resolve the html content to static instance.
-     *
-     * @param string $html
-     *
-     * @return static
-     */
-    protected function htmlResolve(string $html)
-    {
-        $frag = $this->doc->createDocumentFragment();
-        $frag->appendXML($html);
-
-        return $this->resolve($frag);
-    }
-
-    /**
-     * Resolve the nodes under the relation to static instance.
-     * up to but not including the node matched by the $until selector.
-     *
-     * @param string $relation
-     * @param string|DOMNode|DOMNode[]|DOMNodeList|static $until
-     *
-     * @return static
-     */
-    protected function relationResolve(string $relation, ?string $until = null)
-    {
-        $until = !is_null($until)
-            ? $this->targetResolve($until)->nodes
-            : null;
-
-        $nodes = [];
-        foreach ($this->nodes as $node) {
-            while (($node = $node->$relation)
-                && $node->nodeType !== XML_DOCUMENT_NODE
-            ) {
-                if ($node->nodeType !== XML_ELEMENT_NODE) {
-                    continue;
-                }
-
-                if (!is_null($until) && $this->resolve($node)->is($until)) {
-                    break;
-                }
-
-                if (!in_array($node, $nodes, true)) {
-                    $nodes[] = $node;
-                }
-            }
-        }
-
-        return $this->resolve($nodes);
-    }
-
-    /**
-     * Determine where the parameter of the closure should resolve to static,
-     * or just leave it as DOMNode
-     *
-     * @param Closure $function
-     * @param int     $index    Which parameter of the closure, starts with 0
-     *
-     * @return bool
-     */
-    protected function shouldResolve(Closure $function, $index = 0)
-    {
-        $reflection = new ReflectionFunction($function);
-
-        $parameters = $reflection->getParameters();
-        if (!empty($parameters) && array_key_exists($index, $parameters)) {
-            $class = $parameters[$index]->getClass();
-            if ($class && $class->isInstance($this)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Resolve the xpath to static instance.
-     *
-     * @param string $xpath
-     *
-     * @return static
-     */
-    protected function xpathFind(string $xpath)
-    {
-        $nodes = [];
-        foreach ($this->nodes as $node) {
-            $nodes = array_merge($nodes, $this->xpathQuery($xpath, $node));
-        }
-
-        $nodes = Helper::strictArrayUnique($nodes);
-
-        return $this->resolve($nodes);
-    }
-
-    /**
-     * Query xpath to an array of DOMNode
-     *
-     * @param string       $xpath
-     * @param DOMNode|null $node
-     *
-     * @return DOMNode[]
-     */
-    protected function xpathQuery(
-        string $xpath,
-        ?DOMNode $node = null
-    ): array {
-        $docXpath = new DOMXpath($this->doc);
-        $nodeList = $docXpath->query($xpath, $node);
-
-        if (!($nodeList instanceof DOMNodeList)) {
-            return [];
-        }
-
-        return iterator_to_array($nodeList);
     }
 }

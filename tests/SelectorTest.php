@@ -34,17 +34,17 @@ class SelectorTest extends TestCase
         $p = $hq->find('p');
         $this->assertEquals(
             '<p id="title2" class="title"><em>New</em>Html Query2</p>',
-            $hq($p)->eq(1)->outerHtml()
+            ($hq('div')($p))->eq(1)->outerHtml()
         );
 
         $this->assertEquals(
             '<p id="title2" class="title"><em>New</em>Html Query2</p>',
-            $hq($p->eq(1)->toArray())->outerHtml()
+            ($hq('div')($p->eq(1)->toArray()))->outerHtml()
         );
 
         $this->assertEquals(
             '<p id="title" class="title"><em>New</em>Html Query</p>',
-            $hq($p[0])->outerHtml()
+            ($hq('div')($p[0]))->outerHtml()
         );
     }
 
@@ -85,7 +85,7 @@ class SelectorTest extends TestCase
                     <img src="3.png" class="bar" onclick="zoom()">
                 </div>
                 <p class="foo">Have fun</p>
-                <p>Thanks</p>
+                <p id="ts">Thanks</p>
             </div>
         ';
         $hq = HQ::html($html);
@@ -98,6 +98,11 @@ class SelectorTest extends TestCase
         $this->assertEquals(
             2,
             $hq->find('img.bar')->count()
+        );
+
+        $this->assertEquals(
+            '<p id="ts">Thanks</p>',
+            $hq->find('.content')->find('#ts')->outerHtml()
         );
 
         $html = '
@@ -886,20 +891,18 @@ class SelectorTest extends TestCase
         );
 
         $this->assertEquals(
-            ($this->protectMethod($hq, 'htmlResolve')(
-                '<p>test</p>'
-            ))->outerHtml(),
-            $hq('<p>test</p>')->outerHtml()
+            $hq->query('<p>test</p>')->outerHtml(),
+            ($hq('.content')('<p>test</p>'))->outerHtml()
         );
 
         $this->assertEquals(
             2,
-            $hq($hq->find('.bar')->toArray())->count()
+            ($hq('.content')($hq->find('.bar')->toArray()))->count()
         );
 
         $exception = null;
         try {
-            $hq($this);
+            $hq('.content')($this);
         } catch (Exception $exception) {
         }
         $this->assertInstanceOf(Exception::class, $exception);
