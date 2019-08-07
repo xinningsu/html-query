@@ -65,7 +65,7 @@ $hq = HQ::html($html);
 echo $hq('.title')->html('this is new title')->html();
 //this is new title
 
-echo $hq('.content')->html('this is <b>new content</b>...');
+echo $hq('.content')->html('this is <b>new content</b>...')->html();
 //this is <b>new content</b>...
 
 echo $hq('.content')->text('this is new content...')->html();
