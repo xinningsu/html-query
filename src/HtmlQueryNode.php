@@ -2,7 +2,8 @@
 
 namespace Sulao\HtmlQuery;
 
-use DOMNode, DOMNodeList;
+use DOMNode;
+use DOMNodeList;
 
 /**
  * Class HtmlQueryNode

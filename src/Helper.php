@@ -2,7 +2,10 @@
 
 namespace Sulao\HtmlQuery;
 
-use DOMDocument, DOMNode, DOMNodeList, DOMXPath;
+use DOMDocument;
+use DOMNode;
+use DOMNodeList;
+use DOMXPath;
 use Symfony\Component\CssSelector\CssSelectorConverter;
 use Traversable;
 
@@ -233,7 +236,8 @@ class Helper
     public static function getRelationNode(DOMNode $node, string $relation)
     {
         /** @var DOMNode $node */
-        while (($node = $node->$relation)
+        while (
+            ($node = $node->$relation)
             && $node instanceof DOMNode
             && $node->nodeType !== XML_DOCUMENT_NODE
         ) {

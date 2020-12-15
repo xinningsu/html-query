@@ -3,7 +3,9 @@
 namespace Sulao\HtmlQuery;
 
 use Closure;
-use DOMDocument, DOMNode, DOMNodeList;
+use DOMDocument;
+use DOMNode;
+use DOMNodeList;
 
 /**
  * Trait Selector

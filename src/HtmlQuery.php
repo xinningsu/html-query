@@ -2,7 +2,9 @@
 
 namespace Sulao\HtmlQuery;
 
-use DOMDocument, DOMNode, DOMNodeList;
+use DOMDocument;
+use DOMNode;
+use DOMNodeList;
 use Traversable;
 
 /**

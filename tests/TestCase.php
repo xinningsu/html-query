@@ -1,4 +1,5 @@
 <?php
+
 // phpcs:disable PSR1.Classes.ClassDeclaration.MissingNamespace
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase

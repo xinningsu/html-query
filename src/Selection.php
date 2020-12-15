@@ -2,9 +2,13 @@
 
 namespace Sulao\HtmlQuery;
 
-use ArrayAccess, ArrayIterator;
-use Closure, Countable;
-use DOMDocument, DOMNode, DOMElement;
+use ArrayAccess;
+use ArrayIterator;
+use Closure;
+use Countable;
+use DOMDocument;
+use DOMNode;
+use DOMElement;
 use IteratorAggregate;
 use ReflectionFunction;
 
