@@ -244,7 +244,7 @@ abstract class Selection implements Countable, IteratorAggregate, ArrayAccess
         $parameters = $reflection->getParameters();
 
         if (!empty($parameters) && array_key_exists($index, $parameters)) {
-            $class = $parameters[$index]->getClass();
+            $class = $parameters[$index]->getType();
             if (!empty($class)) {
                 return $class->getName();
             }
