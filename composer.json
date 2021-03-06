@@ -1,6 +1,17 @@
 {
     "name": "xinningsu/html-query",
     "description": "A jQuery-like html processor written in PHP",
+    "keywords": [
+        "html query",
+        "jquery",
+        "php jquery",
+        "php html query",
+        "jquery-like",
+        "html processor",
+        "html dom",
+        "css selector"
+    ],
+    "homepage": "https://github.com/xinningsu/html-query",
     "license": "MIT",
     "authors": [
         {
