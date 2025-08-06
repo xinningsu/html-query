@@ -326,7 +326,7 @@ class NodeTest extends TestCase
         $hq->find('div.image img')->unwrapSelf();
         $this->assertEquals(
             '',
-            trim($hq->find('div.image')->html())
+            trim((string)$hq->find('div.image')->html())
         );
 
         $html = '

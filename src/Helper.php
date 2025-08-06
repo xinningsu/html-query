@@ -190,7 +190,7 @@ class Helper
      */
     public static function isIdSelector(
         string $selector,
-        string &$id = null
+        ?string &$id = null
     ): bool {
         if (preg_match('/^#([\w-]+)$/', $selector, $match)) {
             $id = $match[1];

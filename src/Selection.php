@@ -11,6 +11,7 @@ use DOMNode;
 use DOMElement;
 use IteratorAggregate;
 use ReflectionFunction;
+use Traversable;
 
 /**
  * Class Selection
@@ -199,12 +200,12 @@ abstract class Selection implements Countable, IteratorAggregate, ArrayAccess
         return count($this->toArray());
     }
 
-    public function getIterator()
+    public function getIterator(): Traversable
     {
         return new ArrayIterator($this->toArray());
     }
 
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         if (!($value instanceof DOMNode)) {
             throw new Exception(
@@ -217,17 +218,17 @@ abstract class Selection implements Countable, IteratorAggregate, ArrayAccess
         }
     }
 
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return isset($this->nodes[$offset]);
     }
 
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         $this->unset($offset);
     }
 
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return isset($this->nodes[$offset]) ? $this->nodes[$offset] : null;
     }

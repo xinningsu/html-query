@@ -9,5 +9,4 @@ namespace Sulao\HtmlQuery;
  */
 class Exception extends \Exception
 {
-
 }
