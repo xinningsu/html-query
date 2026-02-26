@@ -2,7 +2,7 @@ build:
     image: default-jammy
     environment:
         php:
-            version: 8.4
+            version: 8.4.12
             ini:
                 xdebug.mode: coverage
     nodes:
@@ -12,9 +12,9 @@ build:
                     - 'true'
             tests:
                 override:
-                    - command: pecl install xdebug
-                    - command: vendor/bin/phpcs -n --standard=PSR12 --ignore=./vendor/ --extensions=php ./
-                    - command: XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover /home/scrutinizer/build/clover.xml
+                    - command: pecl install pcov
+                    - command: echo "extension=pcov.so" >> ~/.phpenv/versions/8.4.12/etc/php.ini
+                    - command: vendor/bin/phpunit --coverage-clover /home/scrutinizer/build/clover.xml
                       coverage: 
                         file: /home/scrutinizer/build/clover.xml
                         format: clover
