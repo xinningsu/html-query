@@ -5,7 +5,6 @@
 [![Code Coverage](https://scrutinizer-ci.com/g/xinningsu/html-query/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/xinningsu/html-query/?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/xinningsu/html-query/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/xinningsu/html-query)
 [![Code Intelligence Status](https://scrutinizer-ci.com/g/xinningsu/html-query/badges/code-intelligence.svg?b=master)](https://scrutinizer-ci.com/g/xinningsu/html-query)
-[![Maintainability](https://api.codeclimate.com/v1/badges/18669386ce65532b228f/maintainability)](https://codeclimate.com/github/xinningsu/html-query/maintainability)
 
 A jQuery-like html processor written in PHP
 

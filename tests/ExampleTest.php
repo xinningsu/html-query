@@ -2,6 +2,7 @@
 
 // phpcs:disable PSR1.Classes.ClassDeclaration.MissingNamespace
 
+use Dom\Element as DomElement;
 use Sulao\HtmlQuery\{HQ, HtmlQuery};
 
 class ExampleTest extends TestCase
@@ -208,8 +209,8 @@ class ExampleTest extends TestCase
             $hq('.container')->outerHtml()
         );
 
-        $hq('<img src="0.png"/>')->prependTo('.container');
-        $hq->find('.container')->append('<img src="4.png"/>');
+        $hq('<img src="0.png">')->prependTo('.container');
+        $hq->find('.container')->append('<img src="4.png">');
         $this->assertHtmlEquals(
             '
             <div class="container">

@@ -2,7 +2,7 @@
 
 namespace Sulao\HtmlQuery;
 
-use DOMDocument;
+use Dom\HTMLDocument as DOMDocument;
 
 /**
  * Class HQ
@@ -44,10 +44,14 @@ class HQ
      */
     public static function instance(?string $html = null)
     {
-        libxml_use_internal_errors(true);
-        $doc = new DOMDocument();
-        if (!is_null($html)) {
-            $doc->loadHTML($html, LIBXML_HTML_NODEFDTD | LIBXML_HTML_NOIMPLIED);
+
+        if ($html !== null) {
+            $doc = DOMDocument::createFromString(
+                $html,
+                LIBXML_NOERROR | LIBXML_HTML_NOIMPLIED //| \Dom\HTML_NO_DEFAULT_NS
+            );
+        } else {
+            $doc = DOMDocument::createEmpty();
         }
 
         return new HtmlDocument($doc);

@@ -2,7 +2,7 @@
 
 namespace Sulao\HtmlQuery;
 
-use DOMElement;
+use Dom\Element as DOMElement;
 
 /**
  * Class HtmlElement
@@ -97,11 +97,11 @@ class HtmlElement extends HtmlNode
      */
     public function getVal()
     {
-        switch ($this->node->tagName) {
+        switch (strtolower($this->node->tagName)) {
             case 'input':
                 return $this->node->getAttribute('value');
             case 'textarea':
-                return $this->node->nodeValue;
+                return $this->node->textContent;
             case 'select':
                 return $this->getSelectVal();
         }
@@ -116,12 +116,15 @@ class HtmlElement extends HtmlNode
      */
     public function setVal(string $value)
     {
-        switch ($this->node->tagName) {
+        switch (strtolower($this->node->tagName)) {
             case 'input':
                 $this->node->setAttribute('value', $value);
                 break;
             case 'textarea':
-                $this->node->nodeValue = $value;
+                $doc = $this->node->ownerDocument;
+                $this->node->replaceChildren(
+                    $doc->createTextNode($value)
+                );
                 break;
             case 'select':
                 $this->setSelectVal($value);
@@ -136,25 +139,13 @@ class HtmlElement extends HtmlNode
      */
     protected function setSelectVal(string $value)
     {
-        if ($this->node->tagName == 'select') {
-            $nodes = Helper::xpathQuery(
-                Helper::toXpath('option:selected', 'child::'),
-                $this->getDoc(),
-                $this->node
-            );
-
-            foreach ($nodes as $node) {
-                $node->removeAttribute('selected');
-            }
-
-            $nodes = Helper::xpathQuery(
-                Helper::toXpath("option[value='{$value}']", 'child::'),
-                $this->getDoc(),
-                $this->node
-            );
-
-            if (count($nodes)) {
-                $nodes[0]->setAttribute('selected', 'selected');
+        if (strtolower($this->node->tagName) == 'select') {
+            foreach ($this->node->querySelectorAll('option') as $option) {
+                if ($option->getAttribute('value') === $value) {
+                    $option->setAttribute('selected', '');
+                } else {
+                    $option->removeAttribute('selected');
+                }
             }
         }
     }
@@ -166,25 +157,13 @@ class HtmlElement extends HtmlNode
      */
     protected function getSelectVal()
     {
-        if ($this->node->tagName === 'select') {
-            $xpaths = [
-                Helper::toXpath('option:selected', 'child::'),
-                'child::option[1]'
-            ];
+        $option = $this->node->querySelector('option[selected]')
+            ?? $this->node->querySelector('option');
 
-            foreach ($xpaths as $xpath) {
-                $nodes = Helper::xpathQuery(
-                    $xpath,
-                    $this->getDoc(),
-                    $this->node
-                );
-
-                if (count($nodes)) {
-                    return $nodes[0]->getAttribute('value');
-                }
-            }
+        if (!$option) {
+            return null;
         }
 
-        return null;
+        return $option->getAttribute('value');
     }
 }

@@ -2,8 +2,8 @@
 
 namespace Sulao\HtmlQuery;
 
-use DOMNode;
-use DOMNodeList;
+use Dom\Node as DOMNode;
+use Dom\NodeList as DOMNodeList;
 
 /**
  * Class HtmlQueryNode
@@ -212,7 +212,7 @@ abstract class HtmlQueryNode extends HtmlQueryAttribute
         return $this->each(function (DOMNode $node, $index) use ($newNode) {
             $newNode = $this->newNode($newNode, $index);
 
-            $nodes = $this->xpathQuery('descendant::*[last()]', $newNode);
+            $nodes = $this->selectorQuery('*:last-child', $newNode);
             if (!$nodes) {
                 throw new Exception('Invalid wrap html format.');
             }
@@ -242,7 +242,7 @@ abstract class HtmlQueryNode extends HtmlQueryAttribute
         return $this->each(function (DOMNode $node, $index) use ($newNode) {
             $newNode = $this->newNode($newNode, $index);
 
-            $nodes = $this->xpathQuery('descendant::*[last()]', $newNode);
+            $nodes = $this->selectorQuery('*:last-child', $newNode);
             if (!$nodes) {
                 throw new Exception('Invalid wrap html format.');
             }

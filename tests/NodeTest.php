@@ -66,11 +66,11 @@ class NodeTest extends TestCase
         $hq->find('input')->wrap('<label></label>');
         $this->assertEquals(
             'label',
-            $hq->find("input[name='title']")->parent()->toArray()[0]->tagName
+            strtolower($hq->find("input[name='title']")->parent()->toArray()[0]->tagName)
         );
         $this->assertEquals(
             'label',
-            $hq->find("input[type='submit']")->parent()->toArray()[0]->tagName
+            strtolower($hq->find("input[type='submit']")->parent()->toArray()[0]->tagName)
         );
 
         $html = '
@@ -328,12 +328,6 @@ class NodeTest extends TestCase
             '',
             trim((string)$hq->find('div.image')->html())
         );
-
-        $html = '
-            <ul class="ul">
-                <li>PHP</li>
-            </ul>
-        ';
     }
 
     public function testBefore()
@@ -361,25 +355,30 @@ class NodeTest extends TestCase
         );
 
         $html = '
-            <div class="tag">
-                <h2>Hog tags</h2>
-                <ul>
-                    <li><a href="/php">PHP</a></li>
-                    <li class="front"><a href="/dom">Dom</a></li>
-                    <li class="front"><a href="/jquery">jQuery</a></li>
-                </ul>
-            </div>
+            <body>
+                <div class="tag">
+                    <h2>Hog tags</h2>
+                    <ul>
+                        <li><a href="/php">PHP</a></li>
+                        <li class="front"><a href="/dom">Dom</a></li>
+                        <li class="front"><a href="/jquery">jQuery</a></li>
+                    </ul>
+                </div>
+            </body>
         ';
         $hq = HQ::html($html);
         $hq->find('.tag')->before($hq->find('h2')[0]);
         $this->assertHtmlEquals(
-            '<h2>Hog tags</h2><div class="tag">
-                <ul>
-                    <li><a href="/php">PHP</a></li>
-                    <li class="front"><a href="/dom">Dom</a></li>
-                    <li class="front"><a href="/jquery">jQuery</a></li>
-                </ul>
-            </div>',
+            '<body>
+                <h2>Hog tags</h2>
+                <div class="tag">
+                    <ul>
+                        <li><a href="/php">PHP</a></li>
+                        <li class="front"><a href="/dom">Dom</a></li>
+                        <li class="front"><a href="/jquery">jQuery</a></li>
+                    </ul>
+                </div>
+            </body>',
             $hq->outerHtml()
         );
 
@@ -423,56 +422,64 @@ class NodeTest extends TestCase
     public function testInsertBefore()
     {
         $html = '
-            <div class="tag">
-                <h2>Hog tags</h2>
-                <ul>
-                    <li><a href="/php">PHP</a></li>
-                    <li class="front"><a href="/dom">Dom</a></li>
-                    <li class="front"><a href="/jquery">jQuery</a></li>
-                </ul>
-            </div>
+            <body>
+                <div class="tag">
+                    <h2>Hog tags</h2>
+                    <ul>
+                        <li><a href="/php">PHP</a></li>
+                        <li class="front"><a href="/dom">Dom</a></li>
+                        <li class="front"><a href="/jquery">jQuery</a></li>
+                    </ul>
+                </div>
+            </body>
         ';
         $hq = HQ::html($html);
         $hq->find('h2')->insertBefore('.tag');
         $this->assertHtmlEquals(
-            '<h2>Hog tags</h2><div class="tag">
-                <ul>
-                    <li><a href="/php">PHP</a></li>
-                    <li class="front"><a href="/dom">Dom</a></li>
-                    <li class="front"><a href="/jquery">jQuery</a></li>
-                </ul>
-            </div>',
+            '<body>
+                <h2>Hog tags</h2>
+                <div class="tag">
+                    <ul>
+                        <li><a href="/php">PHP</a></li>
+                        <li class="front"><a href="/dom">Dom</a></li>
+                        <li class="front"><a href="/jquery">jQuery</a></li>
+                    </ul>
+                </div>
+            </body>',
             $hq->outerHtml()
         );
 
         $html = '
-            <div class="tag">
-                <h2>Hog tags</h2>
-                <ul>
-                    <li><a href="/php">PHP</a></li>
-                    <li class="front"><a href="/dom">Dom</a></li>
-                    <li class="front"><a href="/jquery">jQuery</a></li>
-                </ul>
-                <h2>Hog tags2</h2>
-            </div>
-            <div class="tag"></div>
+            <body>
+                <div class="tag">
+                    <h2>Hog tags</h2>
+                    <ul>
+                        <li><a href="/php">PHP</a></li>
+                        <li class="front"><a href="/dom">Dom</a></li>
+                        <li class="front"><a href="/jquery">jQuery</a></li>
+                    </ul>
+                    <h2>Hog tags2</h2>
+                </div>
+                <div class="tag"></div>
+            </body>
         ';
         $hq = HQ::html($html);
         $hq->find('h2')->insertBefore('.tag');
         $this->assertHtmlEquals(
-            '
-            <h2>Hog tags</h2>
-            <h2>Hog tags2</h2>
-            <div class="tag">
-                <ul>
-                    <li><a href="/php">PHP</a></li>
-                    <li class="front"><a href="/dom">Dom</a></li>
-                    <li class="front"><a href="/jquery">jQuery</a></li>
-                </ul>
+            '<body>
+                <h2>Hog tags</h2>
+                <h2>Hog tags2</h2>
+                <div class="tag">
+                    <ul>
+                        <li><a href="/php">PHP</a></li>
+                        <li class="front"><a href="/dom">Dom</a></li>
+                        <li class="front"><a href="/jquery">jQuery</a></li>
+                    </ul>
+                </div>
                 <h2>Hog tags</h2>
                 <h2>Hog tags2</h2>
                 <div class="tag"></div>
-            </div>',
+            </body>',
             $hq->outerHtml()
         );
 

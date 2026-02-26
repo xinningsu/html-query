@@ -2,6 +2,8 @@
 
 // phpcs:disable PSR1.Classes.ClassDeclaration.MissingNamespace
 
+use Dom\Element as DomElement;
+use Dom\Node as DomNode;
 use Sulao\HtmlQuery\{HQ, HtmlQuery};
 
 class SelectorTest extends TestCase
@@ -267,12 +269,12 @@ class SelectorTest extends TestCase
 
         $this->assertEquals(
             'div',
-            $hq->find('p.p-0')->eq(0)->parent()[0]->nodeName
+            strtolower($hq->find('p.p-0')->eq(0)->parent()[0]->nodeName)
         );
 
         $this->assertEquals(
             'div',
-            $hq->find('p.p-0')->eq(0)->parent('.content')[0]->nodeName
+            strtolower($hq->find('p.p-0')->eq(0)->parent('.content')[0]->nodeName)
         );
 
         $this->assertEquals(
@@ -292,11 +294,11 @@ class SelectorTest extends TestCase
 
         $hq->find('p.p-0')->parent()->each(function ($node, $index) {
             if ($index == 0) {
-                $this->assertEquals('div', $node->tagName);
+                $this->assertEquals('div', strtolower($node->tagName));
             }
 
             if ($index == 1) {
-                $this->assertEquals('body', $node->tagName);
+                $this->assertEquals('body', strtolower($node->tagName));
             }
         });
     }
@@ -348,7 +350,7 @@ class SelectorTest extends TestCase
         $hq = HQ::html($html);
         $this->assertEquals(
             'type',
-            $hq->find('option:selected')->parentsUntil('form')->attr('name')
+            $hq->find('option:checked')->parentsUntil('form')->attr('name')
         );
     }
 
@@ -431,7 +433,7 @@ class SelectorTest extends TestCase
         );
         $this->assertEquals(
             1,
-            $currentNode->siblings(':selected')->count()
+            $currentNode->siblings('*:selected')->count()
         );
 
         $this->assertEquals(
@@ -475,12 +477,12 @@ class SelectorTest extends TestCase
 
         $this->assertEquals(
             'Dom',
-            $currentNode->prev(':selected')->text()
+            $currentNode->prev('option:selected')->text()
         );
 
         $this->assertEquals(
             '1',
-            $currentNode->prev(":contains('PHP')")->getAttr('value')
+            $currentNode->prev("option:contains('PHP')")->getAttr('value')
         );
 
         $this->assertEquals(0, $currentNode->prev(".none")->count());
@@ -488,17 +490,17 @@ class SelectorTest extends TestCase
         $currentNodes = $hq->find("option:contains('jQuery')");
         $this->assertEquals(
             'Dom',
-            $currentNodes->prev(':selected')->text()
+            $currentNodes->prev('option:selected')->text()
         );
 
         $this->assertEquals(
             '1',
-            $currentNodes->prev(":contains('PHP')")->getAttr('value')
+            $currentNodes->prev("option:contains('PHP')")->getAttr('value')
         );
 
         $this->assertEquals(
             '1',
-            $currentNodes->prev(":contains('PHP')")->getAttr('value')
+            $currentNodes->prev("option:contains('PHP')")->getAttr('value')
         );
 
         $html = '
@@ -584,7 +586,7 @@ class SelectorTest extends TestCase
                 ->count()
         );
         $this->assertEquals(
-            '<option value="2" selected>Dom</option>',
+            '<option value="2" selected="">Dom</option>',
             $hq->find("option:contains('js')")
                 ->prevUntil("option:contains('PHP')")
                 ->eq(1)
@@ -706,7 +708,7 @@ class SelectorTest extends TestCase
 
         $this->assertEquals(
             0,
-            $hq->find("option:contains('PHP')")->nextUntil(':selected')->count()
+            $hq->find("option:contains('PHP')")->nextUntil('option:selected')->count()
         );
     }
 

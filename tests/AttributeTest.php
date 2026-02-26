@@ -241,7 +241,7 @@ class AttributeTest extends TestCase
             ->removeData('name');
 
         $this->assertEquals(
-            '<p class="p-0" data-content=\'{"id":1,"tag":"dom"}\'>test</p>',
+            '<p class="p-0" data-content="{&quot;id&quot;:1,&quot;tag&quot;:&quot;dom&quot;}">test</p>',
             $hq->find('.p-0')->outerHtml()
         );
 

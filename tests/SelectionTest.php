@@ -2,6 +2,9 @@
 
 // phpcs:disable PSR1.Classes.ClassDeclaration.MissingNamespace
 
+use Dom\HTMLDocument as DomDocument;
+use Dom\Element as DomElement;
+use Dom\Node as DomNode;
 use Sulao\HtmlQuery\{Exception, HQ, HtmlQuery};
 
 class SelectionTest extends TestCase

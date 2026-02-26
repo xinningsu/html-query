@@ -2,10 +2,10 @@
 
 namespace Sulao\HtmlQuery;
 
-use DOMDocument;
-use DOMNode;
-use DOMNodeList;
-use DOMXPath;
+use Dom\HTMLDocument as DOMDocument;
+use Dom\Node as DOMNode;
+use Dom\NodeList as DOMNodeList;
+use Dom\XPath as DOMXPath;
 use Symfony\Component\CssSelector\CssSelectorConverter;
 use Traversable;
 
@@ -17,19 +17,30 @@ use Traversable;
 class Helper
 {
     /**
+     * Default namespace for xpath query
+     * Xpath query will need the namespace if we don't use \Dom\HTML_NO_DEFAULT_NS flag when loading html,
+     * \Dom\HTML_NO_DEFAULT_NS has a side effect that it will cause some tags like <img> to be closed automatically like
+     * <img><img />.
+     */
+    const string XPATH_DEFAULT_NAMESPACE = 'xhtml';
+
+    /**
      * Convert a css selector to xpath
      *
      * @param string $selector
      * @param string $prefix
+     * @param string $namespace
      *
      * @return string
      */
     public static function toXpath(
         string $selector,
-        string $prefix = 'descendant::'
+        string $prefix = 'descendant::',
+        string $namespace = ''
     ): string {
         static $converter;
         $converter = $converter ?: new CssSelectorConverter();
+        $selector = $namespace !== '' ? "$namespace|$selector" : $selector;
 
         return $converter->toXPath($selector, $prefix);
     }
@@ -207,21 +218,44 @@ class Helper
      * @param string       $xpath
      * @param DOMDocument  $doc
      * @param DOMNode|null $node
+     * @param string       $namespace
      *
      * @return DOMNode[]
      */
     public static function xpathQuery(
         string $xpath,
         DOMDocument $doc,
-        ?DOMNode $node = null
+        ?DOMNode $node = null,
+        string $namespace = ''
     ): array {
         $docXpath = new DOMXpath($doc);
-        $nodeList = $docXpath->query($xpath, $node);
-
-        if (!($nodeList instanceof DOMNodeList)) {
+        if ($namespace !== '') {
+            $docXpath->registerNamespace($namespace, 'http://www.w3.org/1999/xhtml');
+        }
+        try {
+            $nodeList = @$docXpath->query($xpath, $node);
+        } catch (\Throwable $e) {
             return [];
         }
 
+        return iterator_to_array($nodeList);
+    }
+
+    /**
+     * Selector to an array of DOMNode
+     *
+     * @param string       $selector
+     * @param DOMDocument  $doc
+     * @param DOMNode|null $node
+     *
+     * @return DOMNode[]
+     */
+    public static function selectorQuery(
+        string $selector,
+        DOMDocument $doc,
+        ?DOMNode $node = null
+    ): array {
+        $nodeList = $node ? $node->querySelectorAll($selector) : $doc->querySelectorAll($selector);
         return iterator_to_array($nodeList);
     }
 

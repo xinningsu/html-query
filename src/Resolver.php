@@ -2,9 +2,9 @@
 
 namespace Sulao\HtmlQuery;
 
-use DOMDocument;
-use DOMNode;
-use DOMNodeList;
+use Dom\HTMLDocument as DOMDocument;
+use Dom\Node as DOMNode;
+use Dom\NodeList as DOMNodeList;
 
 /**
  * Trait Selector
@@ -104,7 +104,15 @@ trait Resolver
     protected function htmlResolve(string $html)
     {
         $frag = $this->doc->createDocumentFragment();
-        $frag->appendXML($html);
+
+        $tmp = DomDocument::createFromString(
+            $html,
+            LIBXML_NOERROR
+        );
+
+        foreach ($tmp->body->childNodes as $node) {
+            $frag->appendChild($this->doc->importNode($node, true));
+        }
 
         return $this->resolve($frag);
     }
@@ -141,22 +149,57 @@ trait Resolver
     }
 
     /**
-     * Resolve the xpath to static instance.
+     * Resolve the selector to static instance.
      *
-     * @param string $xpath
+     * @param string $selector
      *
      * @return static
      */
-    protected function xpathResolve(string $xpath)
+    protected function selectorResolve(string $selector)
     {
         $nodes = [];
         foreach ($this->nodes as $node) {
-            $nodes = array_merge($nodes, $this->xpathQuery($xpath, $node));
+            $nodes = array_merge($nodes, iterator_to_array($node->querySelectorAll($selector)));
         }
 
         $nodes = Helper::strictArrayUnique($nodes);
 
         return $this->resolve($nodes);
+    }
+
+    /**
+     * Resolve the xpath to static instance.
+     *
+     * @param string $xpath
+     * @param string $namespace
+     *
+     * @return static
+     */
+    protected function xpathResolve(string $xpath, string $namespace = '')
+    {
+        $nodes = [];
+        foreach ($this->nodes as $node) {
+            $nodes = array_merge($nodes, $this->xpathQuery($xpath, $node, $namespace));
+        }
+
+        $nodes = Helper::strictArrayUnique($nodes);
+
+        return $this->resolve($nodes);
+    }
+
+    /**
+     * Selector to an array of DOMNode
+     *
+     * @param string       $selector
+     * @param DOMNode|null $node
+     *
+     * @return DOMNode[]
+     */
+    protected function selectorQuery(
+        string $selector,
+        ?DOMNode $node = null
+    ): array {
+        return Helper::selectorQuery($selector, $this->doc, $node);
     }
 
     /**
@@ -169,8 +212,9 @@ trait Resolver
      */
     protected function xpathQuery(
         string $xpath,
-        ?DOMNode $node = null
+        ?DOMNode $node = null,
+        string $namespace = ''
     ): array {
-        return Helper::xpathQuery($xpath, $this->doc, $node);
+        return Helper::xpathQuery($xpath, $this->doc, $node, $namespace);
     }
 }

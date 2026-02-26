@@ -3,9 +3,10 @@
 namespace Sulao\HtmlQuery;
 
 use Closure;
-use DOMDocument;
-use DOMNode;
-use DOMNodeList;
+use DOMException;
+use Dom\HTMLDocument as DOMDocument;
+use Dom\Node as DOMNode;
+use Dom\NodeList as DOMNodeList;
 
 /**
  * Trait Selector
@@ -74,7 +75,14 @@ trait Selector
     public function find($selector)
     {
         if (is_string($selector)) {
-            $selection = $this->xpathResolve(Helper::toXpath($selector));
+            try {
+                $selection = $this->selectorResolve($selector);
+            } catch (DomException $e) {
+                $selection = $this->xpathResolve(
+                    Helper::toXpath($selector, namespace: Helper::XPATH_DEFAULT_NAMESPACE),
+                    Helper::XPATH_DEFAULT_NAMESPACE
+                );
+            }
 
             return Helper::isIdSelector($selector)
                 ? $this->resolve($selection->nodes[0] ?? [])
@@ -186,10 +194,10 @@ trait Selector
      */
     public function siblings(?string $selector = null)
     {
-        $xpath = is_null($selector) ? '*' : Helper::toXpath($selector, '');
+        $xpath = is_null($selector) ? '*' : Helper::toXpath($selector, '', Helper::XPATH_DEFAULT_NAMESPACE);
         $xpath = "preceding-sibling::{$xpath}|following-sibling::{$xpath}";
 
-        return $this->xpathResolve($xpath);
+        return $this->xpathResolve($xpath, Helper::XPATH_DEFAULT_NAMESPACE);
     }
 
     /**
@@ -202,10 +210,10 @@ trait Selector
      */
     public function prev(?string $selector = null)
     {
-        $xpath = is_null($selector) ? '*' : Helper::toXpath($selector, '');
+        $xpath = is_null($selector) ? '*' : Helper::toXpath($selector, '', Helper::XPATH_DEFAULT_NAMESPACE);
         $xpath = "preceding-sibling::{$xpath}[1]";
 
-        return $this->xpathResolve($xpath);
+        return $this->xpathResolve($xpath, Helper::XPATH_DEFAULT_NAMESPACE);
     }
 
     /**
@@ -247,10 +255,10 @@ trait Selector
      */
     public function next(?string $selector = null)
     {
-        $xpath = is_null($selector) ? '*' : Helper::toXpath($selector, '');
+        $xpath = is_null($selector) ? '*' : Helper::toXpath($selector, '', Helper::XPATH_DEFAULT_NAMESPACE);
         $xpath = "following-sibling::{$xpath}[1]";
 
-        return $this->xpathResolve($xpath);
+        return $this->xpathResolve($xpath, Helper::XPATH_DEFAULT_NAMESPACE);
     }
 
     /**

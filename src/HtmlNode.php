@@ -2,8 +2,8 @@
 
 namespace Sulao\HtmlQuery;
 
-use DOMDocument;
-use DOMNode;
+use Dom\HTMLDocument as DOMDocument;
+use Dom\Node as DOMNode;
 
 /**
  * Class HtmlNode
@@ -69,7 +69,9 @@ class HtmlNode
      */
     public function setText(string $text)
     {
-        $this->node->nodeValue = $text;
+        $this->node->replaceChildren(
+            $this->node->ownerDocument->createTextNode($text)
+        );
     }
 
     /**
@@ -77,7 +79,7 @@ class HtmlNode
      */
     public function empty()
     {
-        $this->node->nodeValue = '';
+        $this->node->replaceChildren();
     }
 
     /**

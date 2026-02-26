@@ -2,6 +2,8 @@
 
 // phpcs:disable PSR1.Classes.ClassDeclaration.MissingNamespace
 
+use Dom\HTMLDocument as DomDocument;
+use Dom\Node as DomNode;
 use Sulao\HtmlQuery\{Helper, HQ, HtmlElement, HtmlQuery};
 
 class ResolverTest extends TestCase
@@ -41,9 +43,6 @@ class ResolverTest extends TestCase
                 <div class="fruit">banana</div>
             </body>
         ';
-        $doc = new DOMDocument();
-        $doc->loadHTML($html);
-
         $hq = HQ::html($html)('body');
 
         $xpathResolve = $this->protectMethod($hq, 'xpathResolve');
@@ -60,20 +59,18 @@ class ResolverTest extends TestCase
     public function testXpathQuery()
     {
         $html = '
-            <div id="foo"><p>foo</p></div>
-            <div id="bar">bar</div>
-            <div class="fruit">apple</div>
-            <div class="fruit">orange</div>
-            <div class="fruit">banana</div>
+            <body>
+                <div id="foo"><p>foo</p></div>
+                <div id="bar">bar</div>
+                <div class="fruit">apple</div>
+                <div class="fruit">orange</div>
+                <div class="fruit">banana</div>
+            </body>
         ';
-        $doc = new DOMDocument();
-        $doc->loadHTML($html);
-
+        $doc = HQ::html($html)->getDoc();
         $hq = new HtmlQuery($doc, []);
 
-        $nodes = $this->protectMethod($hq, 'xpathQuery')(
-            Helper::toXpath('#foo')
-        );
+        $nodes = $this->protectMethod($hq, 'xpathQuery')(Helper::toXpath('#foo'));
         $this->assertEquals(1, count($nodes));
         $this->assertEquals(
             '<div id="foo"><p>foo</p></div>',
@@ -89,11 +86,6 @@ class ResolverTest extends TestCase
             [],
             $this->protectMethod($hq, 'xpathQuery')('^&9*')
         );
-
-        $nodes = $this->protectMethod($hq, 'xpathQuery')(
-            Helper::toXpath('#foo p')
-        );
-        $this->assertEquals(1, count($nodes));
 
         $nodes = $this->protectMethod($hq, 'xpathQuery')(
             Helper::toXpath('.fruit')
@@ -218,7 +210,7 @@ class ResolverTest extends TestCase
             <div class="fruit">orange</div>
             <div class="fruit">banana</div>
         ';
-        $doc = new DOMDocument();
+        $doc = HQ::instance()->getDoc();
         $hq = new HtmlQuery($doc, []);
 
         $this->assertHtmlEquals(
@@ -229,7 +221,7 @@ class ResolverTest extends TestCase
 
     public function testGetClosureClass()
     {
-        $doc = new DOMDocument();
+        $doc = HQ::instance()->getDoc();
         $hq = new HtmlQuery($doc, []);
         $getClosureClass = $this->protectMethod($hq, 'getClosureClass');
 

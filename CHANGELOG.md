@@ -14,3 +14,6 @@ Compatible with php 8
 
 ## 1.0.4 - 2025-08-06
 Upgrade dependencies
+
+## 2.0.0 - 2026-02-26
+Use new Dom\HTMLDocumen since PHP 8.4

@@ -66,14 +66,15 @@ class HtmlQueryTest extends TestCase
     public function testValidateNodes()
     {
         $html = '
-            <div id="foo"><p>foo</p></div>
-            <div id="bar">bar</div>
-            <div class="fruit">apple</div>
-            <div class="fruit">orange</div>
-            <div class="fruit">banana</div>
+            <body>
+                <div id="foo"><p>foo</p></div>
+                <div id="bar">bar</div>
+                <div class="fruit">apple</div>
+                <div class="fruit">orange</div>
+                <div class="fruit">banana</div>
+            </body>
         ';
-        $doc = new DOMDocument();
-        $doc->loadHTML($html);
+        $doc = HQ::html($html)->getDoc();
 
         $hq = new HtmlQuery($doc, []);
 
@@ -108,8 +109,7 @@ class HtmlQueryTest extends TestCase
             $exception->getMessage()
         );
 
-        $doc2 = new DOMDocument();
-        $doc2->loadHTML($html);
+        $doc2 = HQ::html($html)->getDoc();
         $hq2 = new HtmlQuery($doc2, []);
         $nodes2 = $this->protectMethod($hq2, 'xpathQuery')(
             Helper::toXpath('.fruit')

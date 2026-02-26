@@ -2,8 +2,9 @@
 
 namespace Sulao\HtmlQuery;
 
-use DOMDocument;
-use DOMNode;
+use Dom\HTMLDocument as DOMDocument;
+use Dom\Node as DOMNode;
+use DOMException;
 
 /**
  * Class HtmlDocument
@@ -72,7 +73,15 @@ class HtmlDocument
     {
         if (Helper::isRawHtml($selector)) {
             $frag = $this->doc->createDocumentFragment();
-            $frag->appendXML($selector);
+
+            $tmp = DomDocument::createFromString(
+                $selector,
+                LIBXML_NOERROR
+            );
+
+            foreach ($tmp->body->childNodes as $node) {
+                $frag->appendChild($this->doc->importNode($node, true));
+            }
 
             return $this->resolve($frag);
         }
@@ -89,11 +98,20 @@ class HtmlDocument
      */
     public function find(string $selector)
     {
-        $nodes = Helper::xpathQuery(
-            Helper::toXpath($selector),
-            $this->doc,
-            $this->doc
-        );
+        try {
+            $nodes = Helper::selectorQuery(
+                $selector,
+                $this->doc,
+                $this->doc
+            );
+        } catch (DomException $e) {
+            $nodes = Helper::xpathQuery(
+                Helper::toXpath($selector, namespace: Helper::XPATH_DEFAULT_NAMESPACE),
+                $this->doc,
+                $this->doc,
+                Helper::XPATH_DEFAULT_NAMESPACE
+            );
+        }
 
         if (Helper::isIdSelector($selector)) {
             $nodes = $nodes ? $nodes[0] : [];
