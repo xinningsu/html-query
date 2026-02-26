@@ -12,7 +12,7 @@ build:
                     - 'true'
             tests:
                 override:
-                    - php-scrutinizer-run
+                    - command: pecl install xdebug
                     - command: vendor/bin/phpcs -n --standard=PSR12 --ignore=./vendor/ --extensions=php ./
                     - command: XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover /home/scrutinizer/build/clover.xml
                       coverage: 
